@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#22336b">
+<title>TT Moon Buggy · Teddy &amp; Tommy</title>
+<!-- The game's icon: the same emoji as its card on the dashboard, on a coloured tile. It's the browser tab's icon (the SVG, then
+     a PNG drawn below) and the iPad home screen's (apple-touch-icon). The device's own emoji font draws it: no image files. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20x='2'%20y='2'%20width='60'%20height='60'%20rx='14'%20fill='%2322336b'%20stroke='%2314121f'%20stroke-width='4'/%3E%3Ctext%20x='32'%20y='44'%20font-size='36'%20text-anchor='middle'%3E%F0%9F%8C%95%3C/text%3E%3C/svg%3E">
+<script>
+  (function (emoji, tile) {
+    function draw(size, framed) {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const g = c.getContext('2d');
+      if (!g) return '';
+      const u = size / 64;
+      g.fillStyle = tile;
+      if (framed) { // the tab: a rounded tile with the dashboard's dark outline
+        g.beginPath();
+        if (g.roundRect) g.roundRect(2 * u, 2 * u, 60 * u, 60 * u, 14 * u); else g.rect(2 * u, 2 * u, 60 * u, 60 * u);
+        g.fill();
+        g.lineWidth = 4 * u;
+        g.strokeStyle = '#14121f';
+        g.stroke();
+      } else g.fillRect(0, 0, size, size); // the home screen: iOS rounds the corners itself
+      g.font = `${Math.round(size * (framed ? 0.56 : 0.62))}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+      g.textAlign = 'center';
+      const m = g.measureText(emoji);
+      const up = m.actualBoundingBoxAscent || size * 0.4, down = m.actualBoundingBoxDescent || 0;
+      g.fillText(emoji, size / 2, size / 2 + (up - down) / 2);
+      try { return c.toDataURL('image/png'); } catch (e) { return ''; }
+    }
+    const tab = draw(64, true), home = draw(180, false);
+    if (tab) document.querySelector('link[rel="icon"]').href = tab;
+    if (home) {
+      const l = document.createElement('link');
+      l.rel = 'apple-touch-icon';
+      l.href = home;
+      document.head.appendChild(l);
+    }
+  })('🌕', '#22336b');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #ffd400;
+    --pink: #ff3d7f;
+    --cyan: #18d4ff;
+    --mint: #7fdcbd;
+    --lav: #c9b8ff;
+    --teddy-l: #9fd0ff;
+    --tommy-l: #9ff2d6;
+    --ink: #14121f;
+    --panel: rgba(16, 14, 50, 0.7);
+    --display: 'Bungee', 'Arial Black', Impact, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden; color: #fff;
+    font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  }
+  body { background: radial-gradient(ellipse at 30% 15%, #33287a, #151236 60%, #0a0920); }
+  #view { position: fixed; left: 0; top: 0; display: block; border-radius: 14px; box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--ink), 0 14px 40px rgba(0, 0, 0, 0.45); }
+  .hidden { display: none !important; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  kbd {
+    display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; margin: 1px;
+    font: 700 12px/1 system-ui, sans-serif; color: var(--ink); background: #fff; border-radius: 6px; box-shadow: 0 2px 0 #9aa;
+  }
+
+  /* ---------- HUD: a bar along the top (the play area starts under it) ---------- */
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #bar { position: absolute; left: 8px; right: 8px; top: max(8px, env(safe-area-inset-top)); display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; justify-content: space-between; }
+  .cards, .rbtns { display: flex; gap: 8px; align-items: stretch; }
+  .card {
+    display: flex; gap: 7px; align-items: center; padding: 4px 10px 4px 4px; border-radius: 14px;
+    background: var(--panel); border: 3px solid var(--teddy-l); min-height: 52px; transition: opacity 0.3s;
+  }
+  .card.tm { border-color: var(--tommy-l); }
+  .card.wait { opacity: 0.5; }
+  .card.turn { box-shadow: 0 0 16px rgba(255, 212, 0, 0.7); }
+  .card .face { flex: none; width: 40px; height: 40px; border-radius: 11px; border: 2px solid #fff; background: radial-gradient(circle at 50% 35%, #a5dcff, #2a6fd0); overflow: hidden; }
+  .card.tm .face { background: radial-gradient(circle at 50% 35%, #d8fff0, #3fae8b); }
+  .card .face img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.15) translateY(4%); }
+  .card.out .face img { filter: grayscale(1); opacity: 0.6; }
+  .card .info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .card .nm { font-family: var(--display); font-size: 15px; line-height: 1; white-space: nowrap; }
+  .card .lives { font-size: 13px; line-height: 1; white-space: nowrap; min-height: 14px; letter-spacing: -1px; }
+  .card .sc { font: 800 12px/1 'Rubik', sans-serif; color: var(--yellow); }
+  .mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 4px 14px; border-radius: 14px; background: var(--panel); border: 3px solid rgba(255, 255, 255, 0.7); min-height: 52px; min-width: 190px; }
+  .mid b { font-family: var(--display); font-weight: 400; font-size: 21px; line-height: 1; color: var(--yellow); }
+  .mid small { font: 800 11px/1.25 'Rubik', sans-serif; letter-spacing: 0.5px; white-space: nowrap; }
+  .trail { display: flex; align-items: center; gap: 2px; font: 400 11px/1 var(--display); }
+  .trail i { font-style: normal; display: grid; place-items: center; width: 18px; height: 16px; border-radius: 5px; background: rgba(255, 255, 255, 0.18); color: rgba(255, 255, 255, 0.75); }
+  .trail i.done { background: var(--mint); color: var(--ink); }
+  .trail i.now { background: var(--yellow); color: var(--ink); transform: scale(1.15); }
+  .trail em { font-style: normal; width: 10px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.3); }
+  .ibtn { width: 46px; border-radius: 13px; font-size: 18px; line-height: 1; background: var(--panel); border: 3px solid rgba(255, 255, 255, 0.8); display: grid; place-items: center; pointer-events: auto; }
+  .pill {
+    position: relative; display: flex; align-items: center; gap: 7px; padding: 4px 12px 4px 4px; border-radius: 14px; pointer-events: auto;
+    background: var(--panel); border: 3px solid var(--yellow); font: 800 12px/1 'Rubik', sans-serif; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden;
+  }
+  .pill .pics { display: flex; height: 40px; border-radius: 11px; overflow: hidden; border: 2px solid #fff; background: radial-gradient(circle at 50% 35%, #ffe2a0, #ff9f1c); }
+  .pill .pics img { width: 40px; height: 100%; object-fit: cover; }
+  .pill .lbl { font-family: var(--display); font-weight: 400; font-size: 13px; }
+  .pill.on { box-shadow: 0 0 18px rgba(255, 212, 0, 0.8); }
+  .pill.down, .tbtn.down { transform: translateY(3px); }
+  /* on touch screens the brother's face is a big button by the jump button (1 player); the high five (2 players) stays in the bar */
+  .touch:not(.two) #budPill { display: none; }
+  .touch .pill .lbl, .touch .pill kbd { display: none; }
+  .touch .pill { padding-right: 4px; }
+
+  /* over the play area: toasts and banners */
+  #toasts { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .toast {
+    position: absolute; white-space: nowrap; font-family: var(--display); font-size: clamp(14px, 2.3vw, 24px); color: #fff;
+    padding: 4px 14px; border-radius: 16px; -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; text-shadow: 0 3px 0 var(--ink);
+    background: rgba(20, 18, 31, 0.45);
+  }
+  .toast.good { color: var(--yellow); }
+  .toast.buddy { color: var(--cyan); font-size: clamp(16px, 2.8vw, 30px); }
+  .toast.oops { color: #ffc2d0; }
+  .banner {
+    position: absolute; text-align: center; font-family: var(--display); pointer-events: none;
+    font-size: clamp(28px, 6vw, 68px); line-height: 1; color: var(--yellow); padding: 0 8px;
+    -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--pink), 0 11px 0 var(--ink), 0 18px 30px rgba(0, 0, 0, 0.35);
+  }
+  .banner small { display: block; font-size: 0.36em; margin-top: 10px; color: #fff; -webkit-text-stroke: 2px var(--ink); text-shadow: 0 4px 0 var(--ink); }
+
+  /* ---------- touch: slower / faster, jump, zap, and your brother's face ---------- */
+  #touch { position: fixed; inset: 0; pointer-events: none; }
+  .tbtn { position: absolute; border-radius: 50%; pointer-events: auto; touch-action: none; display: none; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 34px; line-height: 1; border: 4px solid #fff; box-shadow: 0 6px 0 var(--ink); background: linear-gradient(160deg, #ffe16b, #ffb02e); color: var(--ink); }
+  .tbtn small { position: absolute; left: 50%; bottom: -15px; translate: -50% 0; white-space: nowrap; font: 800 10px/1 'Rubik', sans-serif; letter-spacing: 0.5px; padding: 3px 7px; border-radius: 999px; background: var(--ink); color: #fff; border: 2px solid #fff; }
+  .tbtn.arrow { border-radius: 22px; font-size: 38px; font-weight: 800; background: linear-gradient(160deg, #d9e6ff, #8fb2ff); }
+  .tbtn.zap { font-size: 30px; background: linear-gradient(160deg, #c8f6ff, #33c6e8); }
+  .tbtn.jump { background: linear-gradient(160deg, #ffe16b, #ff9f1c); }
+  .tbtn.bud { padding: 0; overflow: visible; background: var(--yellow); }
+  .tbtn.bud .pics { display: flex; width: 82%; height: 82%; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 50% 35%, #ffe2a0, #ff9f1c); }
+  .tbtn.bud .pics img { flex: 1; min-width: 0; height: 100%; object-fit: cover; }
+  .touch.playing .tbtn.show { display: flex; }
+
+  /* ---------- screens ---------- */
+  .screen {
+    position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center;
+    gap: clamp(8px, 1.5vh, 15px); padding: 16px 16px 16px 64px; text-align: center; overflow-y: auto;
+    background: radial-gradient(ellipse at center, rgba(12, 10, 40, 0.2), rgba(12, 10, 40, 0.7));
+  }
+  .screen > * { flex-shrink: 0; }
+  #title { background: radial-gradient(ellipse at center, rgba(12, 10, 40, 0.1), rgba(12, 10, 40, 0.55)); }
+  .logo { transform: rotate(-4deg); line-height: 0.9; margin-bottom: 4px; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 0.25em; }
+  .logo > span { display: block; font-family: var(--display); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; }
+  .logo .l1 { color: var(--cyan); font-size: clamp(30px, min(7vw, 8vh), 80px); text-shadow: 0 5px 0 var(--pink), 0 9px 0 var(--ink); }
+  .logo .l2 { color: var(--yellow); font-size: clamp(40px, min(10vw, 11.5vh), 110px); text-shadow: 0 6px 0 var(--pink), 0 11px 0 var(--ink), 0 18px 30px rgba(0, 0, 0, 0.35); }
+  .tag { font-size: clamp(14px, 2.1vw, 20px); font-weight: 800; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.5); max-width: 760px; }
+  .btn {
+    font-family: var(--display); font-size: clamp(17px, 3vw, 25px); color: var(--ink); pointer-events: auto;
+    background: var(--yellow); border: 4px solid var(--ink); border-radius: 20px; padding: 10px 22px;
+    box-shadow: 0 8px 0 var(--ink), 0 14px 30px rgba(0, 0, 0, 0.3);
+  }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--ink); }
+  .btn.alt { background: var(--cyan); }
+  .btn.mint { background: var(--mint); }
+  .btn.ghost { background: #fff; }
+  .btn.small { font-size: clamp(14px, 2.2vw, 18px); padding: 7px 16px; border-radius: 15px; box-shadow: 0 6px 0 var(--ink); }
+  .btn small { display: block; font: 800 11px/1.2 'Rubik', sans-serif; letter-spacing: 0.5px; margin-top: 3px; }
+  .modes { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; align-items: stretch; }
+  .mode { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 16px 12px; min-width: 150px; }
+  .mode .pics { display: flex; gap: 2px; height: clamp(54px, 9vh, 84px); }
+  .mode .pics img { height: 100%; aspect-ratio: 1; border-radius: 14px; border: 3px solid var(--ink); background: radial-gradient(circle at 50% 35%, #a5dcff, #2a6fd0); }
+  .mode .pics img.tm { background: radial-gradient(circle at 50% 35%, #d8fff0, #3fae8b); }
+  .pulse { animation: pulse 1.3s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.05); } }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .seg { display: flex; border-radius: 16px; overflow: hidden; border: 3px solid var(--ink); box-shadow: 0 5px 0 var(--ink); pointer-events: auto; }
+  .seg button { padding: 7px 14px; font-family: var(--display); font-size: 15px; background: rgba(255, 255, 255, 0.85); color: var(--ink); }
+  .seg button small { display: block; font: 800 10px/1.1 'Rubik', sans-serif; }
+  .seg button[aria-checked="true"] { background: var(--yellow); }
+  .seg button:disabled { opacity: 0.35; cursor: default; }
+  .seg.starts button { padding: 7px 11px; min-width: 40px; }
+  .seglbl { font: 800 12px/1 'Rubik', sans-serif; letter-spacing: 0.5px; margin-right: 6px; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); }
+  .his { font: 800 13px/1.3 'Rubik', sans-serif; padding: 6px 12px; border-radius: 14px; background: rgba(20, 18, 31, 0.55); border: 2px solid rgba(255, 255, 255, 0.6); }
+  .keys {
+    display: grid; grid-template-columns: auto auto; gap: 3px 14px; align-items: center; text-align: left;
+    padding: 9px 14px; border-radius: 16px; background: rgba(20, 18, 31, 0.6); border: 2px solid rgba(255, 255, 255, 0.6);
+    font-size: 13px; font-weight: 700;
+  }
+  .touch-hint { display: none; font-weight: 700; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); max-width: 560px; }
+  .touch .keys { display: none; }
+  .touch .touch-hint { display: block; }
+  .credit { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); font-size: 13px; font-weight: 700; opacity: 0.9; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); pointer-events: none; }
+  .credit b { color: #ffe2a0; }
+  .big {
+    font-family: var(--display); font-size: clamp(34px, 7.5vw, 80px); line-height: 1; color: var(--cyan); transform: rotate(-3deg);
+    -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 7px 0 var(--yellow), 0 12px 0 var(--ink);
+  }
+  .big.yellow { color: var(--yellow); text-shadow: 0 7px 0 var(--pink), 0 12px 0 var(--ink); }
+  .hint { font-size: 13px; font-weight: 700; opacity: 0.9; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
+  .stats { padding: 10px 18px; border-radius: 16px; background: rgba(20, 18, 31, 0.72); border: 2px solid rgba(255, 255, 255, 0.7); font-weight: 700; }
+  .tally { display: grid; grid-template-columns: auto auto auto; gap: 5px 18px; align-items: center; font: 800 16px/1.2 'Rubik', sans-serif; text-align: left; }
+  .tally .v { font-family: var(--display); font-weight: 400; color: var(--yellow); text-align: right; }
+  .tally img { width: 26px; height: 26px; vertical-align: middle; border-radius: 7px; margin-right: 6px; }
+  #results { justify-content: flex-end; padding-bottom: 4vh; background: linear-gradient(180deg, rgba(12, 10, 40, 0) 40%, rgba(12, 10, 40, 0.78)); }
+  #results .big { font-size: clamp(30px, 6vw, 62px); }
+  /* the pause and results screens let the HUD's own sound button show through (so the kit doesn't add a second one) */
+  #pause, #results { pointer-events: none; }
+
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; background: #1b1650; font-family: var(--display); font-size: 28px; letter-spacing: 2px; padding: 24px; text-align: center; }
+  /* standing up: compact cards so the bar fits */
+  .portrait .card .nm, .portrait .card .sc { display: none; }
+  .portrait .card { padding-right: 8px; }
+  .portrait .mid { padding: 4px 8px; min-width: 0; }
+  .portrait .mid b { font-size: 18px; }
+  .portrait .trail i { width: 15px; }
+  .portrait .trail em { width: 5px; }
+  .portrait #bar { gap: 6px; }
+  .portrait .ibtn { width: 40px; }
+  @media (max-width: 640px) { .credit { display: none; } }
+  @media (max-height: 520px) {
+    .screen { gap: 6px; padding: 8px 8px 8px 60px; }
+    .logo .l1 { font-size: 16px; }
+    .logo .l2 { font-size: 40px; }
+    .tag { font-size: 13px; }
+    .mode { padding: 6px 12px 8px; min-width: 120px; font-size: 16px; }
+    .mode .pics { height: 44px; }
+    .keys, .touch .touch-hint, .his { display: none; }
+    .big { font-size: 38px; }
+    .card, .mid { min-height: 44px; }
+    .card .face, .pill .pics { width: 34px; height: 34px; }
+    .pill .pics img { width: 34px; }
+    .mid b { font-size: 17px; }
+    .seg button { padding: 5px 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="hud" class="hidden">
+  <div id="bar">
+    <div class="cards">
+      <div class="card" id="card0"><div class="face"><img alt=""></div><div class="info"><div class="nm">TEDDY</div><div class="lives"></div><div class="sc">0</div></div></div>
+      <div class="card tm" id="card1"><div class="face"><img alt=""></div><div class="info"><div class="nm">TOMMY</div><div class="lives"></div><div class="sc">0</div></div></div>
+    </div>
+    <div class="mid"><b id="score">0</b><div class="trail" id="trail"></div><small><span id="timeTxt">TIME 0</span> · <span id="hiTxt">HI-SCORE 0</span></small></div>
+    <div class="rbtns">
+      <button id="budPill" class="pill"><span class="pics"><img alt=""><img alt="" class="hidden"></span><span class="lbl">CALL TOMMY</span><kbd>T</kbd></button>
+      <button id="pauseBtn" class="ibtn" title="Pause (P)">❚❚</button>
+      <button id="muteBtn" class="ibtn" title="Sound (M)">🔊</button>
+    </div>
+  </div>
+  <div id="toasts"></div>
+  <div id="banner" class="banner hidden"></div>
+</div>
+
+<div id="touch">
+  <button id="slowBtn" class="tbtn arrow">◀<small>SLOWER</small></button>
+  <button id="fastBtn" class="tbtn arrow">▶<small>FASTER</small></button>
+  <button id="zapBtn" class="tbtn zap">✨<small>ZAP</small></button>
+  <button id="jumpBtn" class="tbtn jump">⤴<small>JUMP</small></button>
+  <button id="budBtn" class="tbtn bud"><span class="pics"><img alt=""></span><small>CALL TOMMY</small></button>
+</div>
+
+<div id="title" class="screen hidden">
+  <div class="logo" id="logo"><span class="l1" id="logo1"></span><span class="l2" id="logo2"></span></div>
+  <p class="tag">Bounce across the moon! Jump the craters, zap the boulders and pop the space jellies, from A to Z.</p>
+  <div class="modes">
+    <button class="btn mode pulse" data-play="teddy"><span class="pics"><img alt="" data-face="teddy"></span>TEDDY<small>1 player · key 1</small></button>
+    <button class="btn mode mint" data-play="tommy"><span class="pics"><img alt="" class="tm" data-face="tommy"></span>TOMMY<small>1 player · key 2</small></button>
+    <button class="btn mode alt" data-play="both"><span class="pics"><img alt="" data-face="teddy"><img alt="" class="tm" data-face="tommy"></span>TEDDY + TOMMY<small>2 players take turns · key 3</small></button>
+  </div>
+  <div class="row">
+    <div class="seg" role="radiogroup" aria-label="Difficulty"><button data-level="easy" role="radio">🐣 EASY<small>slow, long jumps, soft rocks</small></button><button data-level="normal" role="radio">🔥 NORMAL<small>for big kids</small></button></div>
+    <div class="row"><span class="seglbl">START AT</span><div class="seg starts" role="radiogroup" aria-label="Start at" id="starts"></div></div>
+  </div>
+  <div class="his" id="hiLine"></div>
+  <div class="keys">
+    <span>faster · slower</span><span><kbd>→</kbd> <kbd>←</kbd> or <kbd>D</kbd> <kbd>A</kbd></span>
+    <span>jump</span><span><kbd>↑</kbd> <kbd>Space</kbd> or <kbd>W</kbd></span>
+    <span>zap (both cannons)</span><span><kbd>X</kbd> or <kbd>Z</kbd> <kbd>F</kbd></span>
+    <span>call your brother · high five</span><span><kbd>T</kbd> or <kbd>Enter</kbd></span>
+    <span>pause · sound</span><span><kbd>P</kbd> <kbd>M</kbd> · <kbd>E</kbd> easy or normal · <kbd>S</kbd> start point</span>
+  </div>
+  <p class="touch-hint">◀ slows down and ▶ speeds up. The big button jumps, the sparkle zaps (the front cannon and the top cannon), and your brother's face calls him in.</p>
+  <div class="credit">built with <b>Claude Code</b></div>
+</div>
+
+<div id="pause" class="screen hidden">
+  <div class="big">PAUSED</div>
+  <div class="row">
+    <button id="resumeBtn" class="btn">▶ RESUME</button>
+    <button id="restartBtn" class="btn small ghost">↻ START AGAIN</button>
+    <button id="quitBtn" class="btn small ghost">MENU</button>
+  </div>
+  <p class="hint">P · Esc · Space to go on · R start again · Q menu · M sound</p>
+</div>
+
+<div id="results" class="screen hidden">
+  <div class="big yellow" id="overTitle">GREAT DRIVING!</div>
+  <div class="stats"><div class="tally" id="tally"></div></div>
+  <div class="row">
+    <button id="againBtn" class="btn pulse">↻ PLAY AGAIN</button>
+    <button id="keepBtn" class="btn small mint">▶ KEEP GOING</button>
+    <button id="overMenuBtn" class="btn small ghost">MENU</button>
+  </div>
+  <p class="hint" id="overHint">Enter play again · K keep going · Esc menu</p>
+</div>
+
+<div id="loading">LOADING…</div>
+
+<script src="kit/three.min.js"></script>
+<script src="kit/gfx.js"></script>
+<script src="kit/people.js"></script>
+<script src="kit/roster.js"></script>
+<script src="kit/portraits.js"></script>
+<script src="kit/sound.js"></script>
+<script src="kit/lang.js"></script>
+<script src="kit/help.js"></script>
+<script src="js/title.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/bot.js"></script>
+<script src="js/check.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/art.js"></script>
+<script src="js/game.js"></script>
+<script src="js/keys.js"></script>
+<script src="js/zh.js"></script>
+</body>
+</html>

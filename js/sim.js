@@ -218,7 +218,7 @@
         const h = hz[k];
         if (h.passed || h.b + BUGGY_HALF > this.x) { if (h.a > this.x) break; continue; }
         h.passed = true;
-        if (h.kind === 'crater' ? !h.bridged : h.alive) { this.add(20); this.ev('over', { hz: h.i, pts: 20 }); }
+        if (h.kind === 'crater' ? !h.bridged : h.alive) { this.add(20); this.ev('cleared', { hz: h.i, pts: 20 }); }
       }
       // checkpoints
       const nx = this.C.cps[this.cp + 1];
