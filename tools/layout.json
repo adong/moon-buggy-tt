@@ -1,0 +1,6 @@
+[
+ { "label": "prefs", "js": "localStorage.setItem('claudeGames.muted', '1'); localStorage.removeItem('claudeGames.lang'); location.reload(); 'reload'", "wait": 4500 },
+ { "label": "layout", "jsFile": "tools/layout.js", "wait": 300, "shot": "layout-2p" },
+ { "label": "1p", "js": "game.start({players:['teddy']}); game.step(0.5); 'ok'", "wait": 300, "shot": "layout-1p" },
+ { "label": "title", "js": "game.menu(); game.step(0.5); 'ok'", "wait": 300, "shot": "layout-title" }
+]

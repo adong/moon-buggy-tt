@@ -9,6 +9,7 @@
   const HZ = 120, DT = 1 / HZ;
   const UNIT = 360000, TICK = UNIT / HZ;
   const STAGE_LEN = 5; // a stage is 5 sections: A to E, E to J, J to O, O to T, T to Z
+  const STAGE_ENDS = [4, 9, 14, 19]; // E J O T (Z is the finish)
 
   // 🐣 EASY is for Tommy (5): a slower scroll, a longer floatier jump, rocks only give a soft bump, goo only makes you
   // sticky, and 5 lives. 🔥 NORMAL is for Teddy (8).
@@ -240,7 +241,7 @@
         this.state = 'done'; this.stateT = 0;
         for (const j of this.jellies) if (j.state !== 'pop') j.state = 'leave';
         this.ev('finish', { pts: 500 });
-      } else if (c.i % STAGE_LEN === 4) { this.ev('stage', { letter: c.letter, cp: c.i }); this.sim.stageTurn(); }
+      } else if (STAGE_ENDS.includes(c.i)) { this.ev('stage', { letter: c.letter, cp: c.i }); this.sim.stageTurn(); }
     }
 
     fire() {
@@ -347,7 +348,7 @@
       // new jellies
       const driving = this.state === 'drive';
       while (driving && this.nextJelly < this.C.jellyAt.length && this.x >= this.C.jellyAt[this.nextJelly]) {
-        this.nextJelly++;
+        if (this.x - this.C.jellyAt[this.nextJelly++] > 20) continue; // (only one you just drove under, not ones far behind)
         this.jellies.push({
           id: nextId++, x: this.x + 16, y: 10, vx: this.v, t: 0, state: 'in', ph: this.rnd() * 6.28, off: 1 + this.rnd() * 3,
           offT: 2 + this.rnd() * 2, dropT: 1.6 + this.rnd(), drops: 0, charge: 0, color: Math.floor(this.rnd() * 4),
@@ -583,6 +584,7 @@
   MB.sim = {
     LEVELS, LETTERS, HZ, DT, UNIT, TICK, STAGE_LEN, BUGGY_HALF, ROCK, FRONT_RANGE,
     STARTS: [0, 4, 9, 14, 19], // A E J O T: where a game can start
+    STAGE_ENDS,
     GOO_G,
     Sim, Run, buildCourse, blankInput, rng32,
     // the time bonus at a checkpoint: 100, plus 10 for every whole second under the section's par time

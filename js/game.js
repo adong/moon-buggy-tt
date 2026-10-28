@@ -85,7 +85,7 @@
       chunks.push({ g, x0, x1 });
     });
     for (const c of C.cps) {
-      const v = A.buildCheckpoint(c.letter, A.PALETTES[stageOf(Math.min(24, c.i))].sign, c.i % M.STAGE_LEN === 4 || c.i === 0 || c.i === 25);
+      const v = A.buildCheckpoint(c.letter, A.PALETTES[stageOf(Math.min(24, c.i))].sign, M.STAGE_ENDS.includes(c.i) || c.i === 0 || c.i === 25);
       v.root.position.x = c.x;
       scene.add(v.root);
       objs.push(v.root);
@@ -454,7 +454,7 @@
       case 'stage':
         SFX.stage();
         noteReached(R);
-        if (!S.two) toast(`ON TO ${M.LETTERS[Math.min(25, e.cp + 5)]}!`, 'good', R.x + 4, 5.5, 2.2);
+        if (!S.two) toast(`ON TO ${M.LETTERS[e.cp === 19 ? 25 : e.cp + 5]}!`, 'good', R.x + 4, 5.5, 2.2);
         break;
       case 'finish':
         SFX.win();
@@ -568,8 +568,11 @@
     };
     const kitTop = h / 2 - 26;
     const cands = [];
-    if (touch && !portrait) cands.push(fit(L.col, top, w - 2 * L.col, h - top - 8));
-    else if (touch) cands.push(fit(8, top, w - 16, h - top - 8 - (L.D + L.B + 70), true));
+    if (touch && !portrait) {
+      // the buttons in columns beside the play area (phones), or in a strip under it (iPads: a bigger play area)
+      cands.push(Object.assign(fit(L.col, top, w - 2 * L.col, h - top - 8), { pads: 'side' }));
+      cands.push(Object.assign(fit(62, top, w - 124, h - top - 8 - (L.D + 34), true), { pads: 'below' }));
+    } else if (touch) cands.push(Object.assign(fit(8, top, w - 16, h - top - 8 - (L.D + L.B + 70), true), { pads: 'portrait' }));
     else {
       cands.push(fit(62, top, w - 124, h - top - 8));
       cands.push(fit(8, top, w - 16, kitTop - 6 - top, true));
@@ -599,7 +602,15 @@
       Object.assign(el.style, { left: `${Math.round(x)}px`, top: `${Math.round(y)}px`, width: `${Math.round(s)}px`, height: `${Math.round(s)}px` });
     };
     const yTop = barBottom() + 10;
-    if (!portrait) {
+    if (rect.pads === 'below') {
+      // one strip along the bottom: slower and faster on the left; his face, zap and jump on the right
+      const yb = h - 16;
+      place('slowBtn', 14, yb - B, B);
+      place('fastBtn', 14 + B + 12, yb - B, B);
+      place('jumpBtn', w - 14 - D, yb - D, D);
+      place('zapBtn', w - 14 - D - 16 - Z, yb - Z, Z);
+      place('budBtn', w - 14 - D - 16 - Z - 16 - F, yb - F, F, !two);
+    } else if (!portrait) {
       // left column: slower and faster along the bottom (under the kit's buttons); right column: jump, zap, his face
       place('slowBtn', 14, h - 14 - B, B);
       place('fastBtn', 14 + B + 10, h - 14 - B, B);
@@ -829,11 +840,14 @@
     let title;
     if (S.two) title = w < 0 ? 'WHAT A TIE!' : `${NAMES[S.runs[w].kind]} WINS!`;
     else title = won ? 'YOU MADE IT TO Z!' : 'GREAT DRIVING!';
-    setText($('overTitle'), newBest ? `${title} · NEW HI-SCORE!` : title);
+    setText($('overTitle'), title);
+    $('newBest').classList.toggle('hidden', !newBest);
     const rows = S.runs.map((R) => `<span><img alt="" src="${faces[R.kind]}">${NAMES[R.kind]}</span><span>POINT ${M.LETTERS[Math.max(0, R.stats.best)]}</span><span class="v">${R.score}</span>`);
     rows.push(`<span>HI-SCORE</span><span>${lvl === 'easy' ? '🐣' : '🔥'}</span><span class="v">${best[lvl]}</span>`);
     $('tally').innerHTML = rows.join('');
-    $('keepBtn').classList.toggle('hidden', !S.runs.some((R) => R.state === 'out') || won && !S.two);
+    const keep = S.runs.some((R) => R.state === 'out') && !(won && !S.two);
+    $('keepBtn').classList.toggle('hidden', !keep);
+    setText($('overHint'), keep ? 'Enter play again · K keep going · Esc menu' : 'Enter play again · Esc menu');
     st.results = { t: 0 };
     show('results');
     setMode('results');
@@ -1072,7 +1086,8 @@
     checkFails: () => MB.check.sabotage(),
     menu: toMenu,
     pause, resume, keepGoing,
-    over() { const S = st.sim; if (S) for (const R of S.runs) { R.lives = 1; R.bonk(null, 'goo'); } },
+    // out of buggies now (tests): the others are out already, this one has one last bonk
+    over() { const S = st.sim; if (!S || S.phase !== 'play') return; for (const R of S.runs) if (R !== S.R) { R.lives = 0; R.state = 'out'; } S.R.lives = 1; S.R.bonk(null, 'goo'); },
     keepAwake(on = true) { st.keepAwake = on; },
     freeze(on = true) { st.frozen = on; },
     mirror(on = true) { st.inputMirror = on; },

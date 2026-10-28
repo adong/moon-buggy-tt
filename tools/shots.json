@@ -1,0 +1,4 @@
+[
+ { "label": "prefs", "js": "localStorage.setItem('claudeGames.muted', '1'); localStorage.removeItem('claudeGames.lang'); localStorage.removeItem('moonBuggyTT.best'); localStorage.removeItem('moonBuggyTT.settings'); localStorage.removeItem('moonBuggyTT.reached'); location.reload(); 'reload'", "wait": 4500 },
+ { "label": "title", "js": "game.keepAwake(); game.menu(); game.step(2.5); JSON.stringify(game.state().run)", "wait": 800, "shot": "screenshot" }
+]

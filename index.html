@@ -101,7 +101,7 @@
   .trail i.done { background: var(--mint); color: var(--ink); }
   .trail i.now { background: var(--yellow); color: var(--ink); transform: scale(1.15); }
   .trail em { font-style: normal; width: 10px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.3); }
-  .ibtn { width: 46px; border-radius: 13px; font-size: 18px; line-height: 1; background: var(--panel); border: 3px solid rgba(255, 255, 255, 0.8); display: grid; place-items: center; pointer-events: auto; }
+  .ibtn { width: 46px; min-height: 42px; border-radius: 13px; font-size: 18px; line-height: 1; background: var(--panel); border: 3px solid rgba(255, 255, 255, 0.8); display: grid; place-items: center; pointer-events: auto; }
   .pill {
     position: relative; display: flex; align-items: center; gap: 7px; padding: 4px 12px 4px 4px; border-radius: 14px; pointer-events: auto;
     background: var(--panel); border: 3px solid var(--yellow); font: 800 12px/1 'Rubik', sans-serif; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden;
@@ -140,7 +140,7 @@
   .tbtn small { position: absolute; left: 50%; bottom: -15px; translate: -50% 0; white-space: nowrap; font: 800 10px/1 'Rubik', sans-serif; letter-spacing: 0.5px; padding: 3px 7px; border-radius: 999px; background: var(--ink); color: #fff; border: 2px solid #fff; }
   .tbtn.arrow { border-radius: 22px; font-size: 38px; font-weight: 800; background: linear-gradient(160deg, #d9e6ff, #8fb2ff); }
   .tbtn.zap { font-size: 30px; background: linear-gradient(160deg, #c8f6ff, #33c6e8); }
-  .tbtn.jump { background: linear-gradient(160deg, #ffe16b, #ff9f1c); }
+  .tbtn.jump { font-size: 52px; font-weight: 800; background: linear-gradient(160deg, #ffe16b, #ff9f1c); }
   .tbtn.bud { padding: 0; overflow: visible; background: var(--yellow); }
   .tbtn.bud .pics { display: flex; width: 82%; height: 82%; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 50% 35%, #ffe2a0, #ff9f1c); }
   .tbtn.bud .pics img { flex: 1; min-width: 0; height: 100%; object-fit: cover; }
@@ -154,7 +154,7 @@
   }
   .screen > * { flex-shrink: 0; }
   #title { background: radial-gradient(ellipse at center, rgba(12, 10, 40, 0.1), rgba(12, 10, 40, 0.55)); }
-  .logo { transform: rotate(-4deg); line-height: 0.9; margin-bottom: 4px; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 0.25em; }
+  .logo { transform: rotate(-4deg); line-height: 0.9; margin-bottom: 4px; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: clamp(10px, 2vw, 22px); }
   .logo > span { display: block; font-family: var(--display); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; }
   .logo .l1 { color: var(--cyan); font-size: clamp(30px, min(7vw, 8vh), 80px); text-shadow: 0 5px 0 var(--pink), 0 9px 0 var(--ink); }
   .logo .l2 { color: var(--yellow); font-size: clamp(40px, min(10vw, 11.5vh), 110px); text-shadow: 0 6px 0 var(--pink), 0 11px 0 var(--ink), 0 18px 30px rgba(0, 0, 0, 0.35); }
@@ -209,6 +209,7 @@
   .tally img { width: 26px; height: 26px; vertical-align: middle; border-radius: 7px; margin-right: 6px; }
   #results { justify-content: flex-end; padding-bottom: 4vh; background: linear-gradient(180deg, rgba(12, 10, 40, 0) 40%, rgba(12, 10, 40, 0.78)); }
   #results .big { font-size: clamp(30px, 6vw, 62px); }
+  .newbest { font-family: var(--display); font-size: clamp(16px, 2.6vw, 26px); color: #fff; -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 0 4px 0 var(--pink); animation: pulse 1s ease-in-out infinite; }
   /* the pause and results screens let the HUD's own sound button show through (so the kit doesn't add a second one) */
   #pause, #results { pointer-events: none; }
 
@@ -304,6 +305,7 @@
 
 <div id="results" class="screen hidden">
   <div class="big yellow" id="overTitle">GREAT DRIVING!</div>
+  <div class="newbest hidden" id="newBest">⭐ NEW HI-SCORE! ⭐</div>
   <div class="stats"><div class="tally" id="tally"></div></div>
   <div class="row">
     <button id="againBtn" class="btn pulse">↻ PLAY AGAIN</button>

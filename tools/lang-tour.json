@@ -1,0 +1,4 @@
+[
+ { "label": "prefs", "js": "localStorage.setItem('claudeGames.muted', '1'); localStorage.removeItem('claudeGames.lang'); localStorage.removeItem('moonBuggyTT.best'); localStorage.removeItem('moonBuggyTT.settings'); localStorage.removeItem('moonBuggyTT.reached'); location.reload(); 'reload'", "wait": 4500 },
+ { "label": "tour", "jsFile": "tools/lang-tour.js" }
+]

@@ -19,7 +19,7 @@
     '🐣 EASY': '🐣 简单', 'slow, long jumps, soft rocks': '慢慢开，跳得远，石头软软的',
     '🔥 NORMAL': '🔥 普通', 'for big kids': '大孩子玩',
     'START AT': '出发点', 'Start at': '出发点', 'Reach this letter to start here': '先开到这个字母，才能从这里出发',
-    'faster · slower': '加速 · 减速', 'zap (both cannons)': '发射（两门炮一起）', 'easy or normal': '简单或普通', 'start point': '出发点',
+    'faster · slower': '加速 · 减速', 'zap (both cannons)': '发射（两门炮一起）', 'easy or normal': '简单或普通', 'easy or normal ·': '简单或普通 ·', 'start point': '出发点',
     '◀ slows down and ▶ speeds up. The big button jumps, the sparkle zaps (the front cannon and the top cannon), and your brother\'s face calls him in.':
       '◀ 减速，▶ 加速。大按钮是跳，闪闪的按钮是发射（前面的炮和上面的炮一起打），点兄弟的头像就能叫他来帮忙。',
     'LOADING…': '加载中…',
@@ -35,7 +35,8 @@
     // results
     'GREAT DRIVING!': '开得真棒！', 'YOU MADE IT TO Z!': '你开到 Z 啦！', 'WHAT A TIE!': '平局！', 'NEW HI-SCORE!': '新的最高分！',
     'HI-SCORE': '最高分', '↻ PLAY AGAIN': '↻ 再玩一次', '▶ KEEP GOING': '▶ 继续开',
-    'Enter play again · K keep going · Esc menu': 'Enter 再玩一次 · K 继续开 · Esc 菜单',
+    'Enter play again · K keep going · Esc menu': 'Enter 再玩一次 · K 继续开 · Esc 菜单', 'Enter play again · Esc menu': 'Enter 再玩一次 · Esc 菜单',
+    '⭐ NEW HI-SCORE! ⭐': '⭐ 新的最高分！⭐',
 
     // toasts, banners and word bursts
     'STICKY GOO! SLOW...': '黏黏的果冻！变慢啦…', 'OOPS! INTO A CRATER': '哎呀！掉进陨石坑啦', 'HIGH FIVE!': '击掌！',
@@ -67,5 +68,4 @@
   L.rule(/^(TEDDY|TOMMY) SAYS: BRIDGE COMING!$/, '$1 说：桥来啦！');
   L.rule(/^(TEDDY|TOMMY) SAYS: NO MORE CRATERS!$/, '$1 说：前面没有陨石坑啦！');
   L.rule(/^BYE BYE, (TEDDY|TOMMY)!$/, '拜拜，$1！');
-  L.rule(/^(.+) · NEW HI-SCORE!$/, (m, a) => `${L.t(a)} · 新的最高分！`);
 })();
